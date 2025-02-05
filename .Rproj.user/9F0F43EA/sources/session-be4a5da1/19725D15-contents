@@ -1,0 +1,134 @@
+---
+title: "Untersuchung von Simpson's Paradox mit dem Pinguin-Datensatz"
+subtitle: "Zeigt gleichzeitg die Möglichkeiten von Quarto." 
+description: "Dieses Dokument dient nur zum Erlernen von R and Quarto."
+
+author: 
+  name: "Kurt Trinko"
+  affiliation: "Independant"
+  email: "ktrinko@gmail.com"
+keywords: "Quarto, Paradox, Data Analysis"
+date: today
+
+title-block-banner: "#f0f3f5"
+title-block-banner-color: "black"
+
+format: html
+css: style.css
+code-fold: true
+toc: true
+toc-title: Inhalt
+toc-location: left
+number-sections: true
+editor: source
+fig-cap-location: margin
+---
+
+
+
+::: {.callout-note}
+Ich verwende hier nur Überschriften ersten Grades #
+und Überschriften zweiten Grades ## 
+aber keine Überschriftendritten Grades ###
+:::
+
+
+::: {.callout-tip}
+Formeln kann man mit LaTeX-Syntax formatieren
+mehr hier:
+https://latex-tutorial.com/tutorials/amsmath/
+:::
+
+
+# Einleitung
+
+Wir untersuchen hier die *Schnabellänge* der *Adelie-Pinguine* auf der *Insel Torgersen* mit Hilfe eines ***Streuungsdiagramms***.
+
+Die **Originaldaten** findet man [hier](https://allisonhorst.github.io/palmerpenguins/).
+
+
+
+![Erklärung Schnabellänge](\asset\culmen_depth.png){fig-alt="An image showing a penguin" fig-align="left" width=300}
+
+## R-Code zum Laden der benötigten Pakete
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(patchwork)     # combine charts together
+library(DT)            # interactive tables
+library(knitr)         # static table with the kable() function
+library(plotly)        # interaktive Grafiken
+```
+
+
+# R-Code zum Einlesen der Daten und Filtern der Daten
+```{r, warning=FALSE, message=FALSE}
+# Source functions
+source(file="R/functions.R")
+
+# Read the clean dataset
+data <- readRDS(file = "input/clean_data.rds")
+
+# Summary
+summary(data)
+
+# Calculating mean bill length for different species and islands using dplyr
+data %>%
+  filter(species == "Adelie") %>%
+  group_by(island) %>%
+  summarize(mean_bill_length = round(mean(bill_length_mm, na.rm = TRUE), 2))
+
+```
+
+## Originaldaten ansehen
+Hier können Sie die Originaldaten mit Hilfe des DT-Pakets ansehen:
+```{r, warning=FALSE, message=FALSE}
+datatable(data, options = list(pageLength = 5), filter = "top")
+```
+
+
+# R-Code zur mittleren Schnabellänge und mittleren Schnabeldicke
+```{r, warning=FALSE, message=FALSE}
+#| layout-ncol: 2
+bill_length_per_specie <- data %>%
+ group_by(species) %>% 
+  summarise(average_bill_length = mean(bill_length_mm, na.rm = TRUE))
+kable(bill_length_per_specie)
+
+bill_depth_per_specie <- data %>%
+ group_by(species) %>% 
+  summarise(average_bill_depth = mean(bill_depth_mm, na.rm = TRUE))
+kable(bill_depth_per_specie)
+
+bill_length_adelie <- bill_length_per_specie %>%
+  filter(species == "Adelie") %>%
+  pull(average_bill_length) %>%
+  round(2)
+```
+
+## Variable im Bericht dynamisch anzeigen
+Beispiel: Die mittlere Schnabellänge der Art *Adelie* beträgt `r bill_length_adelie`.
+
+
+
+# R-Code für das Erzeugen des interaktiven Streuungsdiagramms
+
+```{r, warning=FALSE, message=FALSE}
+
+# Use the function in functions.R
+p<- create_scatterplot(data, "Adelie", "Torgersen")
+ggplotly(p)
+```
+
+
+
+# R-Code für 3 Scatterplots nach den 3 Pinguinarten
+
+```{r, warning=FALSE, fig.height=3, fig.width=9, fig.cap="Es gibt eine positive Korrelation wenn man die Arten einzeln betrachtet."}
+
+# Use the function in functions.R
+p1 <- create_scatterplot2(data, "Adelie", "#6689c6")
+p2 <- create_scatterplot2(data, "Chinstrap", "#e85252")
+p3 <- create_scatterplot2(data, "Gentoo", "#9a6fb0")
+
+p1 + p2 + p3
+```

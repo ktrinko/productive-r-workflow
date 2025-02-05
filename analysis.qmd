@@ -1,0 +1,42 @@
+---
+title: "Penguin Analyse für den R-Workshop"
+format: html
+code-fold: true
+toc: true
+editor: visual
+---
+
+## Einleitung
+
+Wir untersuchen hier die *Schnabellänge* der *Adelie-Pinguine* auf der *Insel Torgersen* mit Hilfe eines ***Streuungsdiagramms***.
+
+Die **Originaldaten** findet man [hier](https://allisonhorst.github.io/palmerpenguins/).
+
+## R-Code zum Einlesen der Daten und Filtern der Daten
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+
+# Source functions
+source(file="R/functions.R")
+
+# Read the clean dataset
+data <- readRDS(file = "input/clean_data.rds")
+
+# Summary
+summary(data)
+
+# Calculating mean bill length for different species and islands using dplyr
+data %>%
+  filter(species == "Adelie") %>%
+  group_by(island) %>%
+  summarize(mean_bill_length = round(mean(bill_length_mm, na.rm = TRUE), 2))
+
+```
+
+## R-Code für das Erzeugen des Streuungsdiagramms
+
+```{r, warning=FALSE, message=FALSE}
+# Use the function in functions.R
+create_scatterplot(data, "Adelie", "Torgersen")
+```
