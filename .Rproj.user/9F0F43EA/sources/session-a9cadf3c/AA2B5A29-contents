@@ -10,7 +10,7 @@ author:
 keywords: "Quarto, Paradox, Data Analysis"
 date: today
 
-title-block-banner: "#f0f3f5"
+title-block-banner: "#808080"
 title-block-banner-color: "black"
 
 format: html
