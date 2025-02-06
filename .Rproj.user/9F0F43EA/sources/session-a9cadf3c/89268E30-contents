@@ -104,9 +104,16 @@ Beispiel: Die mittlere Schnabellänge der Art *Adelie* beträgt `r bill_length_a
 # R-Code für das Erzeugen des interaktiven Streuungsdiagramms
 
 ```{r, warning=FALSE, message=FALSE}
-
-# Use the function in functions.R
-p<- create_scatterplot(data, "Adelie", "Torgersen")
+p <- data %>%
+  ggplot(
+    aes(x = bill_length_mm, y = bill_depth_mm)
+  ) +
+    geom_point(color="#69b3a2") +
+    labs(
+      x = "Bill Length (mm)",
+      y = "Bill Depth (mm)",
+      title = paste("Überraschende Zusammenhänge?")
+    )
 ggplotly(p)
 ```
 
